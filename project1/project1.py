@@ -9,6 +9,7 @@ Created on Sat Oct 28 13:04:36 2017
 # mini project 1
 
 import sqlite3
+import getpass
 #import hashlib
 
 connection = None
@@ -32,12 +33,12 @@ def checkRegister(userId):
 def customerRegister():
     global connection, cursor
     userId = raw_input("Enter the ID you like: ")
-    if checkRegister(userId) is False:
+    while checkRegister(userId) is False:
         print("Sorry you can not use this ID.")
         userId = raw_input("Please re-enter the ID you like: ")
     name = raw_input("Enter your name: ")
     address = raw_input("Enter your address: ")
-    pwd = raw_input("Enter your password: ")
+    pwd = getpass.getpass("Enter your password: ")
     cursor.execute("insert into customers values ('%s','%s','%s','%s');"%(userId,name,address,pwd))
     connection.commit()
     return True
@@ -79,11 +80,11 @@ def login():
             return customerRegister()
         else:   
             userId = raw_input("Enter your ID: ")
-            pwd = raw_input("Enter your password: ")
+            pwd = getpass.getpass("Enter your password: ")
             result = customerLogin(userId, pwd)
     else:
         userId = raw_input("Enter your ID: ")
-        pwd = raw_input("Enter your password: ")
+        pwd = getpass.getpass("Enter your password: ")
         result = agentLogin(userId, pwd)
     return len(result) == 1
 
@@ -94,7 +95,7 @@ def main():
     if login():
         print("Log in successfully.")
     else:
-         print("Fail.")
+        print("Fail.")
     
     
 main()
