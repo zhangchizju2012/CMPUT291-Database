@@ -73,11 +73,12 @@ def login():
         
     if people == "e":
         print("Log out. Bye bye ~")
-        return False
+        return "exit"
     elif people == "c":
         register = raw_input("Did you register before? y for yes, n for no: ")
         if register == "n":
-            return customerRegister()
+            if customerRegister():
+                return people
         else:   
             userId = raw_input("Enter your ID: ")
             pwd = getpass.getpass("Enter your password: ")
@@ -86,14 +87,55 @@ def login():
         userId = raw_input("Enter your ID: ")
         pwd = getpass.getpass("Enter your password: ")
         result = agentLogin(userId, pwd)
-    return len(result) == 1
+        
+    if len(result) == 1:
+        return people
+    else:
+        return "fail"
+    
+def search(item):
+    global connection, cursor
+    result = cursor.execute("select * from products where name like '%"+item+"%';")
+    searchList = result.fetchall()
+    connection.commit()
+    return searchList
 
+    
+def searchTask():
+    print("You can enter as many keywords as possible, enter 'exit' to stop")
+    keywordList = []
+    keyword = raw_input("Enter the keyword, enter 'exit' to stop: ")
+    while keyword != "exit":
+        keywordList.append(keyword)
+        keyword = raw_input("Enter the keyword, enter 'exit' to stop: ")
+    dic = {}
+    for item in keywordList:
+        searchList = search(item)
+        for i in searchList:
+            if i[0] in dic:
+                dic[i[0]] += 1
+            else:
+                dic[i[0]] = 1
+    print dic
+
+    
+def doCustomerTask():
+    print("What do you want to do?")
+    print("Search for products? Place an order? List orders?")
+    task = raw_input("s for search, p for place, l for list: ")
+    if task == "s":
+        searchTask()
+        
 def main():
     global connection, cursor
     path="./mini.db"
     connect(path)
-    if login():
-        print("Log in successfully.")
+    peopleType = login()
+    if peopleType == "c":
+        print("customer log in successfully.")
+        doCustomerTask()
+    elif peopleType == "a":
+        print("agent log in successfully.")
     else:
         print("Fail.")
     
